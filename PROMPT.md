@@ -122,18 +122,15 @@ already prepared:
 
 - The CDK app must define a small `DomainStack` for the public hosted zone and
   a `SiteStack` for the website resources.
-- When a public Route 53 hosted zone for `waddles.website` already exists,
-  accept its hosted-zone ID through CDK context and import it with
-  `HostedZone.fromHostedZoneAttributes`.
 - Never silently create a second hosted zone when one already exists.
 - When no hosted zone exists, `pnpm domain:deploy` must deploy `DomainStack`
   through CDK, create the zone with a `RETAIN` removal policy, and output both
   the hosted-zone ID and authoritative name servers.
-- `DomainStack` must publish its retained hosted-zone ID through a stable SSM
-  parameter.
-- `SiteStack` must import an existing hosted-zone ID from CDK context or read
-  the ID from that SSM parameter. Do not create a direct CloudFormation export
-  or cross-stack reference between the two stacks.
+- `DomainStack` must publish its retained hosted-zone ID through a stable,
+  named CloudFormation export.
+- `SiteStack` must import that named CloudFormation export without creating an
+  automatic CDK stack dependency, so the DNS and site workflows remain
+  independently deployable.
 - If the domain is registered outside Route 53, document the one-time step to
   configure those name servers at the registrar.
 - Domain registration and external registrar changes are not CloudFormation
@@ -191,8 +188,7 @@ tasks through `turbo`. Document these one-time prerequisites:
 - A supported Node.js version and pnpm
 - AWS credentials for the target account
 - CDK bootstrap in `us-east-1`
-- Either an existing Route 53 hosted-zone ID or completion of the documented
-  one-time domain setup
+- Completion of the documented one-time domain setup
 
 Before deployment, CDK should synthesize cleanly. A production deployment
 should not require clicking through the AWS console.

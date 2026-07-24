@@ -6,7 +6,7 @@ import {
   Tags,
 } from "aws-cdk-lib";
 
-import { loadConfig, STACK_NAMES } from "./config.ts";
+import { EXPORT_NAMES, loadConfig, STACK_NAMES } from "./config.ts";
 import { DomainStack } from "./domain-stack.ts";
 import { IdentityStack } from "./identity-stack.ts";
 import { SiteStack } from "./site-stack.ts";
@@ -25,7 +25,7 @@ const domainStack = new DomainStack(app, STACK_NAMES.domain, {
   description: "Long-lived Route 53 foundation for waddles.website",
   domainName: config.domainName,
   env: config.env,
-  hostedZoneParameterName: config.hostedZoneParameterName,
+  hostedZoneExportName: EXPORT_NAMES.hostedZoneId,
   synthesizer: new CliCredentialsStackSynthesizer(),
   terminationProtection: true,
 });
@@ -34,8 +34,7 @@ const siteStack = new SiteStack(app, STACK_NAMES.site, {
   description: "Static World Wide Waddles website",
   domainName: config.domainName,
   env: config.env,
-  hostedZoneId: config.hostedZoneId,
-  hostedZoneParameterName: config.hostedZoneParameterName,
+  hostedZoneExportName: EXPORT_NAMES.hostedZoneId,
   synthesizer: new CliCredentialsStackSynthesizer(),
 });
 

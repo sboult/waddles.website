@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   CfnOutput,
   Duration,
+  Fn,
   RemovalPolicy,
   Stack,
   type StackProps,
@@ -15,32 +16,24 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
-import * as ssm from "aws-cdk-lib/aws-ssm";
 import type { Construct } from "constructs";
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export interface SiteStackProps extends StackProps {
   readonly domainName: string;
-  readonly hostedZoneId?: string;
-  readonly hostedZoneParameterName: string;
+  readonly hostedZoneExportName: string;
 }
 
 export class SiteStack extends Stack {
   public constructor(scope: Construct, id: string, props: SiteStackProps) {
     super(scope, id, props);
 
-    const hostedZoneId =
-      props.hostedZoneId ??
-      ssm.StringParameter.valueForStringParameter(
-        this,
-        props.hostedZoneParameterName,
-      );
     const hostedZone = route53.HostedZone.fromHostedZoneAttributes(
       this,
       "HostedZone",
       {
-        hostedZoneId,
+        hostedZoneId: Fn.importValue(props.hostedZoneExportName),
         zoneName: props.domainName,
       },
     );

@@ -45,7 +45,7 @@ export class IdentityStack extends Stack {
     );
     const dnsExecutionRole = this.createExecutionRole(
       ROLE_NAMES.dnsExecution,
-      this.dnsExecutionPolicy(props.config),
+      this.dnsExecutionPolicy(),
     );
 
     this.createGitHubDeploymentRole({
@@ -208,13 +208,7 @@ export class IdentityStack extends Stack {
     };
   }
 
-  private dnsExecutionPolicy(config: WaddlesConfig): iam.PolicyDocument {
-    const parameterArn = Stack.of(this).formatArn({
-      service: "ssm",
-      resource: "parameter",
-      resourceName: config.hostedZoneParameterName.replace(/^\//, ""),
-    });
-
+  private dnsExecutionPolicy(): iam.PolicyDocument {
     return new iam.PolicyDocument({
       statements: [
         new iam.PolicyStatement({
@@ -242,16 +236,6 @@ export class IdentityStack extends Stack {
               resourceName: "*",
             }),
           ],
-        }),
-        new iam.PolicyStatement({
-          actions: [
-            "ssm:AddTagsToResource",
-            "ssm:DeleteParameter",
-            "ssm:GetParameter",
-            "ssm:PutParameter",
-            "ssm:RemoveTagsFromResource",
-          ],
-          resources: [parameterArn],
         }),
       ],
     });
@@ -349,16 +333,6 @@ export class IdentityStack extends Stack {
             "route53:ListResourceRecordSets",
           ],
           resources: ["*"],
-        }),
-        new iam.PolicyStatement({
-          actions: ["ssm:GetParameter", "ssm:GetParameters"],
-          resources: [
-            Stack.of(this).formatArn({
-              service: "ssm",
-              resource: "parameter",
-              resourceName: config.hostedZoneParameterName.replace(/^\//, ""),
-            }),
-          ],
         }),
         new iam.PolicyStatement({
           actions: [

@@ -64,5 +64,3 @@ jobs:
           pnpm exec cdk deploy WaddlesSiteStack
           --role-arn arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/waddles-cloudformation-site-execution
           --require-approval never
-          -c hostedZoneId=${{ vars.HOSTED_ZONE_ID }}
-

@@ -13,6 +13,10 @@ export const ROLE_NAMES = {
   siteExecution: "waddles-cloudformation-site-execution",
 } as const;
 
+export const EXPORT_NAMES = {
+  hostedZoneId: "WaddlesHostedZoneId",
+} as const;
+
 export interface WaddlesConfig {
   readonly domainName: string;
   readonly dnsEnvironment: string;
@@ -22,8 +26,6 @@ export interface WaddlesConfig {
   readonly githubOwnerId: string;
   readonly githubRepository: string;
   readonly githubRepositoryId: string;
-  readonly hostedZoneId?: string;
-  readonly hostedZoneParameterName: string;
   readonly siteEnvironment: string;
 }
 
@@ -55,8 +57,6 @@ export function loadConfig(app: App): WaddlesConfig {
     githubOwnerId: requiredContext(app, "githubOwnerId"),
     githubRepository: requiredContext(app, "githubRepository"),
     githubRepositoryId: requiredContext(app, "githubRepositoryId"),
-    hostedZoneId: optionalContext(app, "hostedZoneId"),
-    hostedZoneParameterName: `/waddles/${domainName}/hosted-zone-id`,
     siteEnvironment: requiredContext(app, "githubSiteEnvironment"),
   };
 }

@@ -74,16 +74,11 @@ If `waddles.website` does not already have a Route 53 public hosted zone:
 pnpm domain:deploy
 ```
 
-The domain stack is termination-protected, retains the hosted zone and its SSM
-parameter, and outputs the assigned nameservers. Configure those nameservers at
-the registrar when the domain is registered elsewhere, then confirm public DNS
-delegation before deploying the site.
-
-If a hosted zone already exists, skip `DomainStack` and provide its ID:
-
-```sh
-pnpm --filter @waddles/infra site:deploy -- -c hostedZoneId=HOSTED_ZONE_ID
-```
+The domain stack is termination-protected, retains the hosted zone, exports its
+ID through CloudFormation, and outputs the assigned nameservers. Configure
+those nameservers at the registrar when the domain is registered elsewhere,
+then confirm public DNS delegation before deploying the site. Deploy the domain
+stack once before the first site deployment so its export is available.
 
 Deploy the application locally with:
 
@@ -101,9 +96,7 @@ Create these GitHub environments:
 - `dns-production` for the manually dispatched `DomainStack`
 
 Protect both environments appropriately; DNS should require manual approval.
-Add `AWS_ACCOUNT_ID` as a repository or environment variable. Add
-`HOSTED_ZONE_ID` only when importing an existing zone instead of using the SSM
-parameter created by `DomainStack`.
+Add `AWS_ACCOUNT_ID` as a repository or environment variable.
 
 The workflows use GitHub OIDC and temporary AWS credentials. Do not add AWS
 access keys to GitHub secrets.
