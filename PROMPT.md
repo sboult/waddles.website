@@ -18,6 +18,8 @@ The project must be easy to develop locally, deploy to AWS, and extend later.
 - Build the `www` site as a React single-page application using Vite.
 - Make the page usable on mobile and desktop.
 - Host it on AWS without Amplify.
+- Host the source repository on GitHub.
+- Use GitHub Actions for CI and AWS deployments.
 - Use request-driven AWS services with no always-on compute.
 - Keep idle cost as close to zero as practical.
 - Provide a simple, documented deployment command.
@@ -63,6 +65,8 @@ Use Turborepo with pnpm workspaces and keep the initial monorepo minimal:
 waddles.website/
 ├── apps/
 │   └── www/                 # React + TypeScript SPA built with Vite
+├── .github/
+│   └── workflows/           # CI, site deployment, and DNS deployment
 ├── infra/                   # AWS CDK v2 app in TypeScript
 ├── package.json             # Root scripts and shared tooling
 ├── pnpm-workspace.yaml
@@ -187,8 +191,38 @@ tasks through `turbo`. Document these one-time prerequisites:
 Before deployment, CDK should synthesize cleanly. A production deployment
 should not require clicking through the AWS console.
 
-A CI workflow is optional for this first release. Local deployment must work
-first.
+## GitHub and CI/CD
+
+Host the canonical Git repository on GitHub. GitHub Actions is the required
+CI/CD system; do not add AWS CodePipeline, CodeBuild, or Amplify Hosting.
+
+Provide three focused workflows:
+
+- `ci.yml` runs install, formatting/linting, tests, the production web build,
+  and CDK synth on pull requests and relevant pushes.
+- `deploy-site.yml` deploys only `SiteStack` after CI passes on the default
+  branch. Changes under `apps/www` and the site-infrastructure code should
+  trigger this workflow.
+- `deploy-domain.yml` deploys only `DomainStack`. It must be manually
+  dispatched, protected by a dedicated GitHub environment approval, and never
+  run automatically because DNS has a different lifecycle and blast radius.
+
+Authenticate GitHub Actions to AWS with GitHub's OIDC provider and a
+least-privilege IAM deployment role. Do not store long-lived AWS access keys in
+GitHub secrets. Keep the DNS and site deployment roles separate.
+
+The first production deployment order is:
+
+1. Manually run the domain workflow if a hosted zone does not already exist.
+2. Configure registrar delegation when required and verify public DNS.
+3. Run the site workflow.
+
+Routine site releases must not deploy, update, or destroy `DomainStack`.
+Changes to shared monorepo configuration should validate both stacks, but must
+not automatically deploy DNS.
+
+Local development and deployment commands must continue to work independently
+of GitHub Actions.
 
 ## Definition of done
 
@@ -205,6 +239,9 @@ The hello-world MVP is complete when:
 9. There are no always-on compute resources and no Amplify dependency.
 10. The hosted zone survives site-stack deletion.
 11. Route 53, ACM validation, and alias records are managed through CDK.
+12. The canonical repository is hosted on GitHub.
+13. GitHub Actions validates changes and deploys DNS and site stacks through
+    separate OIDC-authenticated workflows.
 
 ## Deferred roadmap
 
