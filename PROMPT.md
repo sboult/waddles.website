@@ -67,7 +67,7 @@ waddles.website/
 │   └── www/                 # React + TypeScript SPA built with Vite
 ├── .github/
 │   └── workflows/           # CI, site deployment, and DNS deployment
-├── infra/                   # AWS CDK v2 app in TypeScript
+├── infra/                   # Site, domain, and CI identity CDK stacks
 ├── package.json             # Root scripts and shared tooling
 ├── pnpm-workspace.yaml
 ├── turbo.json               # Monorepo task definitions
@@ -174,6 +174,7 @@ Provide root scripts with clear names. The intended workflow is:
 pnpm install
 pnpm test
 pnpm build
+pnpm identity:deploy # one time, before GitHub can deploy to AWS
 pnpm domain:deploy # one time, only when a hosted zone does not exist
 pnpm deploy
 ```
@@ -211,11 +212,50 @@ Authenticate GitHub Actions to AWS with GitHub's OIDC provider and a
 least-privilege IAM deployment role. Do not store long-lived AWS access keys in
 GitHub secrets. Keep the DNS and site deployment roles separate.
 
+### IAM ownership
+
+All project-specific IAM resources must be defined as CDK code in the `infra`
+package. Do not manually author roles or policies in the AWS Console.
+
+Define an `IdentityStack` that owns:
+
+- The account-level GitHub Actions OIDC provider, or an explicit import when
+  that provider is already managed by another CDK stack in the account
+- A site deployment role trusted only by the expected GitHub repository and
+  protected `production` environment
+- A separate DNS deployment role trusted only by the expected repository and
+  protected `dns-production` environment
+- The roles' OIDC trust policies
+- Least-privilege identity and resource policies required for their specific
+  CDK deployments
+
+Trust policies must validate the GitHub token audience and exact subject format
+used by the repository. Do not trust every repository in a GitHub organization,
+use an unqualified wildcard subject, or attach `AdministratorAccess`.
+
+Scope `iam:PassRole` and `sts:AssumeRole` permissions to the exact CDK roles
+required for deployment. The site role must not deploy `DomainStack`; the DNS
+role must not deploy `SiteStack`. Neither GitHub role may modify or deploy
+`IdentityStack`, its own trust policy, or its own permissions.
+
+Deploy `IdentityStack` once from a trusted developer session before either
+GitHub deployment workflow can run:
+
+```sh
+pnpm identity:deploy
+```
+
+This command and all later identity changes must use reviewed code from the
+`infra` package. The standard CDK bootstrap resources created by
+`cdk bootstrap` are the only supporting IAM resources not authored directly by
+this project.
+
 The first production deployment order is:
 
-1. Manually run the domain workflow if a hosted zone does not already exist.
-2. Configure registrar delegation when required and verify public DNS.
-3. Run the site workflow.
+1. Bootstrap CDK and deploy `IdentityStack` from a trusted local AWS session.
+2. Manually run the domain workflow if a hosted zone does not already exist.
+3. Configure registrar delegation when required and verify public DNS.
+4. Run the site workflow.
 
 Routine site releases must not deploy, update, or destroy `DomainStack`.
 Changes to shared monorepo configuration should validate both stacks, but must
@@ -242,6 +282,8 @@ The hello-world MVP is complete when:
 12. The canonical repository is hosted on GitHub.
 13. GitHub Actions validates changes and deploys DNS and site stacks through
     separate OIDC-authenticated workflows.
+14. All project-specific IAM roles, trust policies, and permission policies are
+    defined in the `infra` package and deployed through `IdentityStack`.
 
 ## Deferred roadmap
 
