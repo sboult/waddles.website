@@ -93,7 +93,7 @@ premature game code.
 
 ## AWS strategy
 
-Implement one AWS CDK v2 stack in TypeScript with:
+Implement one AWS CDK v2 site stack in TypeScript with:
 
 - A private S3 bucket for the built static assets
 - A CloudFront distribution using Origin Access Control to read from S3
@@ -106,8 +106,36 @@ Implement one AWS CDK v2 stack in TypeScript with:
 - A CloudFront invalidation when site assets change
 
 Deploy the stack in `us-east-1` to keep the CloudFront certificate and the
-small MVP infrastructure in one stack. Reuse the existing Route 53 hosted zone
-for `waddles.website` rather than creating a duplicate zone.
+small MVP infrastructure in one stack.
+
+### Domain and DNS onboarding
+
+Support `waddles.website` as a configurable domain rather than assuming DNS is
+already prepared:
+
+- The CDK app must define a small `DomainStack` for the public hosted zone and
+  a `SiteStack` for the website resources.
+- When a public Route 53 hosted zone for `waddles.website` already exists,
+  accept its hosted-zone ID through CDK context and import it with
+  `HostedZone.fromHostedZoneAttributes`.
+- Never silently create a second hosted zone when one already exists.
+- When no hosted zone exists, `pnpm domain:deploy` must deploy `DomainStack`
+  through CDK, create the zone with a `RETAIN` removal policy, and output both
+  the hosted-zone ID and authoritative name servers.
+- `SiteStack` must receive an `IHostedZone`, whether it was created by
+  `DomainStack` or imported from CDK context.
+- If the domain is registered outside Route 53, document the one-time step to
+  configure those name servers at the registrar.
+- Domain registration and external registrar changes are not CloudFormation
+  resources and are not part of `pnpm deploy`.
+- Use DNS validation for the ACM certificate and create Route 53 alias `A` and
+  `AAAA` records for both `waddles.website` and `www.waddles.website`.
+
+All hosted-zone creation/import, certificate validation records, and website
+alias records inside AWS must be implemented in CDK; no AWS Console steps are
+allowed for them. The regular site deployment must reuse the configured hosted
+zone. Destroying `SiteStack` must not delete the domain registration or hosted
+zone.
 
 Use secure defaults:
 
@@ -142,6 +170,7 @@ Provide root scripts with clear names. The intended workflow is:
 pnpm install
 pnpm test
 pnpm build
+pnpm domain:deploy # one time, only when a hosted zone does not exist
 pnpm deploy
 ```
 
@@ -152,7 +181,8 @@ tasks through `turbo`. Document these one-time prerequisites:
 - A supported Node.js version and pnpm
 - AWS credentials for the target account
 - CDK bootstrap in `us-east-1`
-- An existing Route 53 hosted zone for `waddles.website`
+- Either an existing Route 53 hosted-zone ID or completion of the documented
+  one-time domain setup
 
 Before deployment, CDK should synthesize cleanly. A production deployment
 should not require clicking through the AWS console.
@@ -173,6 +203,8 @@ The hello-world MVP is complete when:
 7. `https://waddles.website` and `https://www.waddles.website` serve the page.
 8. The S3 bucket is private and reachable only through CloudFront.
 9. There are no always-on compute resources and no Amplify dependency.
+10. The hosted zone survives site-stack deletion.
+11. Route 53, ACM validation, and alias records are managed through CDK.
 
 ## Deferred roadmap
 
