@@ -15,7 +15,7 @@ The project must be easy to develop locally, deploy to AWS, and extend later.
 
 - Use a TypeScript monorepo managed with Turborepo so the web app and AWS CDK
   infrastructure live together.
-- Build the `www` site as a static single-page application.
+- Build the `www` site as a React single-page application using Vite.
 - Make the page usable on mobile and desktop.
 - Host it on AWS without Amplify.
 - Use request-driven AWS services with no always-on compute.
@@ -62,7 +62,7 @@ Use Turborepo with pnpm workspaces and keep the initial monorepo minimal:
 ```text
 waddles.website/
 ├── apps/
-│   └── www/                 # Vite + TypeScript static SPA
+│   └── www/                 # React + TypeScript SPA built with Vite
 ├── infra/                   # AWS CDK v2 app in TypeScript
 ├── package.json             # Root scripts and shared tooling
 ├── pnpm-workspace.yaml
@@ -76,8 +76,8 @@ anticipation of future work.
 
 ## Frontend strategy
 
-Use Vite and TypeScript. Prefer plain HTML/CSS/TypeScript for this first page;
-a UI framework is unnecessary for a single static view.
+Use React with TypeScript and Vite. Keep the component structure small for this
+first page; one focused application component is sufficient.
 
 The production build must output static files to `apps/www/dist`. Configure
 Turborepo tasks for development, testing, building, and deployment. Local
