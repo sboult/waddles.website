@@ -2,8 +2,10 @@ import type { CSSProperties } from "react";
 
 import { WAVES } from "./utils/waves";
 
-const WADDLES = String.raw`           _
-       .__(.)< (hello world)
+const WADDLES_BEFORE_QUOTE = String.raw`           _
+       .__(.)< `;
+const WADDLES_QUOTE = "(hello world)";
+const WADDLES_AFTER_QUOTE = String.raw`
         \___)`;
 
 export function App() {
@@ -12,7 +14,9 @@ export function App() {
       <section className="waddles">
         <h1>World Wide Waddles</h1>
         <pre aria-label="Waddles the duck says hello world">
-          {WADDLES}
+          <span style={{ color: "#FAFFD3" }}>{WADDLES_BEFORE_QUOTE}</span>
+          <span style={{ color: "#fff" }}>{WADDLES_QUOTE}</span>
+          <span style={{ color: "#FAFFD3" }}>{WADDLES_AFTER_QUOTE}</span>
           {"\n"}
           <span className="water" aria-hidden="true">
             <span
