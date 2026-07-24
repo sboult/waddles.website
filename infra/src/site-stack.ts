@@ -95,20 +95,9 @@ export class SiteStack extends Stack {
     const spaRewrite = new cloudfront.Function(this, "SpaRewrite", {
       runtime: cloudfront.FunctionRuntime.JS_2_0,
       comment: "Serve index.html for extensionless SPA routes",
-      code: cloudfront.FunctionCode.fromInline(`
-function handler(event) {
-  var request = event.request;
-  var finalSegment = request.uri.split('/').pop();
-
-  if (request.uri.endsWith('/')) {
-    request.uri += 'index.html';
-  } else if (finalSegment && finalSegment.indexOf('.') === -1) {
-    request.uri = '/index.html';
-  }
-
-  return request;
-}
-      `),
+      code: cloudfront.FunctionCode.fromFile({
+        filePath: path.join(currentDirectory, "functions/spa-rewrite.js"),
+      }),
     });
 
     const distribution = new cloudfront.Distribution(this, "Distribution", {

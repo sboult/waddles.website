@@ -20,6 +20,7 @@
     "constructs": "10.7.1"
   },
   "devDependencies": {
+    "@types/aws-cloudfront-function": "1.0.8",
     "@types/node": "26.1.1",
     "@waddles/config-typescript": "workspace:*",
     "@waddles/www": "workspace:*",

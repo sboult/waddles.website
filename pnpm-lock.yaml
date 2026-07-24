@@ -52,6 +52,9 @@ importers:
         specifier: 10.7.1
         version: 10.7.1
     devDependencies:
+      '@types/aws-cloudfront-function':
+        specifier: 1.0.8
+        version: 1.0.8
       '@types/node':
         specifier: 26.1.1
         version: 26.1.1
@@ -233,6 +236,9 @@ packages:
 
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
+
+  '@types/aws-cloudfront-function@1.0.8':
+    resolution: {integrity: sha512-ZuGia9Pi4zhGYorzo0UXbEAirZEEWsp6hm/KHlrTkbpcrKqjYCwQ0PUY1z5Ml5TL4ZeukJzFIkShiz8Om6JEww==}
 
   '@types/node@26.1.1':
     resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
@@ -705,6 +711,8 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@types/aws-cloudfront-function@1.0.8': {}
 
   '@types/node@26.1.1':
     dependencies:
