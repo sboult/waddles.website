@@ -31,6 +31,41 @@ export function App() {
             </span>
           </span>
         </pre>
+        <aside className="migration-log" aria-label="About this website">
+          <p className="migration-log__title">waddles://flight-log</p>
+          <dl className="migration-log__entries">
+            <div>
+              <dt>habitat</dt>
+              <dd>Hosted on AWS</dd>
+            </div>
+            <div>
+              <dt>built using</dt>
+              <dd>
+                <a
+                  href="https://aws.amazon.com/products/developer-tools/agent-toolkit-for-aws/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Agent Toolkit for AWS
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt>source</dt>
+              <dd>
+                <a
+                  href="https://github.com/sboult/waddles.website"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Open source
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </dd>
+            </div>
+          </dl>
+        </aside>
       </section>
     </main>
   );
