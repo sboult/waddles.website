@@ -13,8 +13,8 @@ The project must be easy to develop locally, deploy to AWS, and extend later.
 
 ## MVP requirements
 
-- Use a TypeScript monorepo so the web app and AWS CDK infrastructure live
-  together.
+- Use a TypeScript monorepo managed with Turborepo so the web app and AWS CDK
+  infrastructure live together.
 - Build the `www` site as a static single-page application.
 - Make the page usable on mobile and desktop.
 - Host it on AWS without Amplify.
@@ -57,7 +57,7 @@ The page should be accessible and have:
 
 ## Repository shape
 
-Use pnpm workspaces and keep the initial monorepo minimal:
+Use Turborepo with pnpm workspaces and keep the initial monorepo minimal:
 
 ```text
 waddles.website/
@@ -66,6 +66,7 @@ waddles.website/
 ├── infra/                   # AWS CDK v2 app in TypeScript
 ├── package.json             # Root scripts and shared tooling
 ├── pnpm-workspace.yaml
+├── turbo.json               # Monorepo task definitions
 ├── README.md
 └── PROMPT.md
 ```
@@ -78,7 +79,8 @@ anticipation of future work.
 Use Vite and TypeScript. Prefer plain HTML/CSS/TypeScript for this first page;
 a UI framework is unnecessary for a single static view.
 
-The production build must output static files to `apps/www/dist`. Local
+The production build must output static files to `apps/www/dist`. Configure
+Turborepo tasks for development, testing, building, and deployment. Local
 development should run with one root command, such as:
 
 ```sh
@@ -144,7 +146,8 @@ pnpm deploy
 ```
 
 `pnpm deploy` should build the web app and run the CDK deployment so one
-command publishes the current site. Document these one-time prerequisites:
+command publishes the current site. Root commands should delegate workspace
+tasks through `turbo`. Document these one-time prerequisites:
 
 - A supported Node.js version and pnpm
 - AWS credentials for the target account
@@ -161,7 +164,7 @@ first.
 
 The hello-world MVP is complete when:
 
-1. The repository is a working pnpm monorepo.
+1. The repository is a working Turborepo using pnpm workspaces.
 2. `pnpm dev` shows the ASCII duck locally.
 3. `pnpm build` produces a static site.
 4. The layout works at common mobile and desktop widths.
