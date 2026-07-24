@@ -1,0 +1,24 @@
+{
+  "name": "waddles.website",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "synth": "turbo run synth --filter=@waddles/infra",
+    "diff": "pnpm --filter @waddles/infra run site:diff",
+    "bootstrap": "pnpm --filter @waddles/infra run bootstrap",
+    "setup": "pnpm --filter @waddles/infra run setup",
+    "deploy": "turbo run deploy --filter=@waddles/infra",
+    "domain:deploy": "pnpm --filter @waddles/infra run domain:deploy",
+    "identity:deploy": "pnpm --filter @waddles/infra run identity:deploy"
+  },
+  "devDependencies": {
+    "turbo": "2.10.6"
+  }
+}

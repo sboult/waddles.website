@@ -67,7 +67,10 @@ waddles.website/
 │   └── www/                 # React + TypeScript SPA built with Vite
 ├── .github/
 │   └── workflows/           # CI, site deployment, and DNS deployment
-├── infra/                   # Site, domain, and CI identity CDK stacks
+├── infra/
+│   └── src/                 # Site, domain, and identity CDK stacks
+├── packages/
+│   └── config-typescript/   # Shared TypeScript configuration
 ├── package.json             # Root scripts and shared tooling
 ├── pnpm-workspace.yaml
 ├── turbo.json               # Monorepo task definitions
@@ -75,8 +78,8 @@ waddles.website/
 └── PROMPT.md
 ```
 
-Do not add empty API, shared-package, game, or backend directories in
-anticipation of future work.
+Do not add empty API, game, or backend directories in anticipation of future
+work.
 
 ## Frontend strategy
 
@@ -84,7 +87,7 @@ Use React with TypeScript and Vite. Keep the component structure small for this
 first page; one focused application component is sufficient.
 
 The production build must output static files to `apps/www/dist`. Configure
-Turborepo tasks for development, testing, building, and deployment. Local
+Turborepo tasks for development, type checking, building, and deployment. Local
 development should run with one root command, such as:
 
 ```sh
@@ -126,8 +129,11 @@ already prepared:
 - When no hosted zone exists, `pnpm domain:deploy` must deploy `DomainStack`
   through CDK, create the zone with a `RETAIN` removal policy, and output both
   the hosted-zone ID and authoritative name servers.
-- `SiteStack` must receive an `IHostedZone`, whether it was created by
-  `DomainStack` or imported from CDK context.
+- `DomainStack` must publish its retained hosted-zone ID through a stable SSM
+  parameter.
+- `SiteStack` must import an existing hosted-zone ID from CDK context or read
+  the ID from that SSM parameter. Do not create a direct CloudFormation export
+  or cross-stack reference between the two stacks.
 - If the domain is registered outside Route 53, document the one-time step to
   configure those name servers at the registrar.
 - Domain registration and external registrar changes are not CloudFormation
@@ -172,9 +178,8 @@ Provide root scripts with clear names. The intended workflow is:
 
 ```sh
 pnpm install
-pnpm test
 pnpm build
-pnpm identity:deploy # one time, before GitHub can deploy to AWS
+pnpm run setup # one time: CDK bootstrap, then deploy IdentityStack
 pnpm domain:deploy # one time, only when a hosted zone does not exist
 pnpm deploy
 ```
@@ -199,8 +204,8 @@ CI/CD system; do not add AWS CodePipeline, CodeBuild, or Amplify Hosting.
 
 Provide three focused workflows:
 
-- `ci.yml` runs install, formatting/linting, tests, the production web build,
-  and CDK synth on pull requests and relevant pushes.
+- `ci.yml` runs install, TypeScript checks, the production web build, and CDK
+  synth on pull requests and relevant pushes.
 - `deploy-site.yml` deploys only `SiteStack` after CI passes on the default
   branch. Changes under `apps/www` and the site-infrastructure code should
   trigger this workflow.
@@ -230,23 +235,28 @@ Define an `IdentityStack` that owns:
   CDK deployments
 
 Trust policies must validate the GitHub token audience and exact subject format
-used by the repository. Do not trust every repository in a GitHub organization,
-use an unqualified wildcard subject, or attach `AdministratorAccess`.
+used by the repository, including its immutable owner and repository IDs. The
+IDs are required configuration; do not fall back to a name-only subject. Do not
+trust every repository in a GitHub organization, use an unqualified wildcard
+subject, or attach `AdministratorAccess`.
 
 Scope `iam:PassRole` and `sts:AssumeRole` permissions to the exact CDK roles
 required for deployment. The site role must not deploy `DomainStack`; the DNS
 role must not deploy `SiteStack`. Neither GitHub role may modify or deploy
 `IdentityStack`, its own trust policy, or its own permissions.
 
-Deploy `IdentityStack` once from a trusted developer session before either
-GitHub deployment workflow can run:
+Bootstrap CDK and deploy `IdentityStack` once from a trusted developer session
+before either GitHub deployment workflow can run:
 
 ```sh
-pnpm identity:deploy
+pnpm run setup
 ```
 
-This command and all later identity changes must use reviewed code from the
-`infra` package. The standard CDK bootstrap resources created by
+The setup task must run `cdk bootstrap` for the configured AWS account in
+`us-east-1` before deploying `IdentityStack`. Provide `pnpm run bootstrap` as a
+separate command for cases where only the CDK bootstrap needs to be refreshed.
+The setup command and all later identity changes must use reviewed code from
+the `infra` package. The standard CDK bootstrap resources created by
 `cdk bootstrap` are the only supporting IAM resources not authored directly by
 this project.
 
@@ -272,17 +282,16 @@ The hello-world MVP is complete when:
 2. `pnpm dev` shows the ASCII duck locally.
 3. `pnpm build` produces a static site.
 4. The layout works at common mobile and desktop widths.
-5. `pnpm test` passes.
-6. `pnpm deploy` builds and deploys the site through CDK.
-7. `https://waddles.website` and `https://www.waddles.website` serve the page.
-8. The S3 bucket is private and reachable only through CloudFront.
-9. There are no always-on compute resources and no Amplify dependency.
-10. The hosted zone survives site-stack deletion.
-11. Route 53, ACM validation, and alias records are managed through CDK.
-12. The canonical repository is hosted on GitHub.
-13. GitHub Actions validates changes and deploys DNS and site stacks through
+5. `pnpm deploy` builds and deploys the site through CDK.
+6. `https://waddles.website` and `https://www.waddles.website` serve the page.
+7. The S3 bucket is private and reachable only through CloudFront.
+8. There are no always-on compute resources and no Amplify dependency.
+9. The hosted zone survives site-stack deletion.
+10. Route 53, ACM validation, and alias records are managed through CDK.
+11. The canonical repository is hosted on GitHub.
+12. GitHub Actions validates changes and deploys DNS and site stacks through
     separate OIDC-authenticated workflows.
-14. All project-specific IAM roles, trust policies, and permission policies are
+13. All project-specific IAM roles, trust policies, and permission policies are
     defined in the `infra` package and deployed through `IdentityStack`.
 
 ## Deferred roadmap

@@ -1,0 +1,13 @@
+{
+  "app": "node src/app.ts",
+  "context": {
+    "domainName": "waddles.website",
+    "githubOwner": "sboult",
+    "githubOwnerId": "116204283",
+    "githubRepository": "waddles.website",
+    "githubRepositoryId": "1311079529",
+    "githubSiteEnvironment": "production",
+    "githubDnsEnvironment": "dns-production",
+    "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": true
+  }
+}
