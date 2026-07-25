@@ -3,6 +3,7 @@ import { useEffect, useRef, type RefObject } from "react";
 const WADDLES_TOP = String.raw`    _`;
 const WADDLES_FACE = String.raw`.__(.)<`;
 const WADDLES_BODY = String.raw` \___)`;
+const SPEECH_LEADER_PATTERN = "-";
 const WAVE_PATTERN = "~~~~";
 const WAVE_CHARACTERS_PER_SECOND = 6;
 const WATER_COLOR = "#868686";
@@ -273,9 +274,11 @@ export function WaddlesCanvas({
         lineHeight,
       );
       context.clip();
-      context.fillStyle = "#677680";
+      context.fillStyle = WATER_COLOR;
       context.fillText(
-        ".".repeat(Math.ceil(leaderWidth / characterWidth) + 1),
+        SPEECH_LEADER_PATTERN.repeat(
+          Math.ceil(leaderWidth / characterWidth) + 1,
+        ),
         leaderLeft,
         firstBaseline + lineHeight,
       );
