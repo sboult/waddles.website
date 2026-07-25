@@ -113,7 +113,9 @@ main {
   box-shadow:
     0 1.5rem 4rem rgb(0 0 0 / 30%),
     0 0 0 1px rgb(255 255 255 / 2%);
-  font: var(--canvas-font-size) / 1.4 "Amazon Ember Mono", monospace;
+  font:
+    var(--canvas-font-size) / 1.4 "Amazon Ember Mono",
+    monospace;
 }
 
 .migration-log {

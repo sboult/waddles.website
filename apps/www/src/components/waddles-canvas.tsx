@@ -230,11 +230,7 @@ export function WaddlesCanvas({
       context.fillStyle = TERMINAL_LIGHT_COLORS[2];
       context.fillText("$", sceneLeft, promptBaseline);
       context.fillStyle = "#fff";
-      context.fillText(
-        " waddles",
-        sceneLeft + characterWidth,
-        promptBaseline,
-      );
+      context.fillText(" waddles", sceneLeft + characterWidth, promptBaseline);
 
       context.fillStyle = "#faffd3";
       context.fillText(
@@ -295,11 +291,7 @@ export function WaddlesCanvas({
           : "";
 
       context.fillStyle = "#fff";
-      context.fillText(
-        visibleFirstLine,
-        quoteLeft,
-        firstBaseline + lineHeight,
-      );
+      context.fillText(visibleFirstLine, quoteLeft, firstBaseline + lineHeight);
       if (quoteLayout.secondLine) {
         context.fillText(
           visibleSecondLine,
@@ -312,9 +304,7 @@ export function WaddlesCanvas({
       const waterWidth = sceneWidth;
       const waveOffset = reducedMotionQuery.matches
         ? 0
-        : ((timestamp / 1_000) *
-            WAVE_CHARACTERS_PER_SECOND *
-            characterWidth) %
+        : ((timestamp / 1_000) * WAVE_CHARACTERS_PER_SECOND * characterWidth) %
           (WAVE_PATTERN.length * characterWidth);
 
       context.save();
@@ -325,8 +315,7 @@ export function WaddlesCanvas({
       context.fillText(
         WAVE_PATTERN.repeat(
           Math.ceil(
-            (waterWidth + waveOffset) /
-              (WAVE_PATTERN.length * characterWidth),
+            (waterWidth + waveOffset) / (WAVE_PATTERN.length * characterWidth),
           ) + 1,
         ),
         sceneLeft - waveOffset,
@@ -346,7 +335,7 @@ export function WaddlesCanvas({
       resizeObserver.disconnect();
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [canvasRef]);
 
   return (
     <canvas

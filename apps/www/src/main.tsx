@@ -1,8 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "./App";
-import { initializeAnalytics } from "./utils/analytics";
+import { App } from "./app.js";
+import { initializeAnalytics } from "./utils/analytics.js";
+
 import "./styles.css";
 
 initializeAnalytics();

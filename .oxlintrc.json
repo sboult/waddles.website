@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "suspicious": "error"
+  },
+  "env": {
+    "browser": true,
+    "builtin": true,
+    "node": true
+  },
+  "ignorePatterns": ["**/.turbo/**", "**/dist/**", "**/node_modules/**"],
+  "plugins": [
+    "eslint",
+    "import",
+    "jsx-a11y",
+    "oxc",
+    "react",
+    "typescript",
+    "unicorn"
+  ],
+  "rules": {
+    "import/extensions": [
+      "error",
+      "always",
+      {
+        "checkTypeImports": true,
+        "ignorePackages": true
+      }
+    ],
+    "import/no-unassigned-import": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "react/react-in-jsx-scope": "off",
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "unicorn/no-array-sort": "off"
+  }
+}

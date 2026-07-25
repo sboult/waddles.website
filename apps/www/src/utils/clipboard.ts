@@ -41,13 +41,7 @@ function createSceneBlob(canvas: HTMLCanvasElement) {
   context.save();
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
-  context.drawImage(
-    canvas,
-    sceneLeft,
-    sceneTop,
-    sceneWidth,
-    sceneHeight,
-  );
+  context.drawImage(canvas, sceneLeft, sceneTop, sceneWidth, sceneHeight);
   context.restore();
 
   return new Promise<Blob>((resolve, reject) => {
@@ -89,17 +83,20 @@ export async function copySceneToClipboard(canvas: HTMLCanvasElement) {
       ) {
         throw new Error(
           "Clipboard access was denied. Tap Copy Scene again to grant permission.",
+          { cause: error },
         );
       }
 
       if (error.name === "SecurityError") {
         throw new Error(
           "Clipboard access was blocked. Focus this page and try again.",
+          { cause: error },
         );
       }
 
       throw new Error(
         `Clipboard error: ${error.message || "Unable to copy the scene."}`,
+        { cause: error },
       );
     }
 
@@ -107,6 +104,6 @@ export async function copySceneToClipboard(canvas: HTMLCanvasElement) {
       throw error;
     }
 
-    throw new Error("Unable to copy the scene.");
+    throw new Error("Unable to copy the scene.", { cause: error });
   }
 }

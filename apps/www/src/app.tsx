@@ -2,14 +2,14 @@ import { ClipboardIcon, ExternalLinkIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { WaddlesCanvas } from "./components/WaddlesCanvas";
-import { Button, buttonVariants } from "./components/ui/button";
-import { Toaster } from "./components/ui/sonner";
-import { PROGRAMMER_QUOTES, WADDLES_INTRO_QUOTE } from "./config/quotes";
-import { useTypewriter } from "./hooks/useTypewriter";
-import { cn } from "./lib/utils";
-import { copySceneToClipboard } from "./utils/clipboard";
-import { getRandomQuote } from "./utils/quotes";
+import { Button, buttonVariants } from "./components/ui/button.js";
+import { Toaster } from "./components/ui/sonner.js";
+import { WaddlesCanvas } from "./components/waddles-canvas.js";
+import { PROGRAMMER_QUOTES, WADDLES_INTRO_QUOTE } from "./config/quotes.js";
+import { useTypewriter } from "./hooks/use-typewriter.js";
+import { cn } from "./lib/utils.js";
+import { copySceneToClipboard } from "./utils/clipboard.js";
+import { getRandomQuote } from "./utils/quotes.js";
 
 const X_SHARE_TEXT = `Check out the waddles.website where you'll find a surfing duck
 #Waddles`;
@@ -76,10 +76,7 @@ export function App() {
             typedQuote={typedQuote}
           />
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button
-              type="button"
-              onClick={copyScene}
-            >
+            <Button type="button" onClick={copyScene}>
               <ClipboardIcon data-icon="inline-start" />
               Copy as Image
             </Button>

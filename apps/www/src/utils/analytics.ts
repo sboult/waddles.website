@@ -7,11 +7,13 @@ declare global {
   }
 }
 
+function gtag(..._args: unknown[]) {
+  window.dataLayer.push(arguments);
+}
+
 export function initializeAnalytics() {
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(..._args: unknown[]) {
-    window.dataLayer.push(arguments);
-  };
+  window.gtag = gtag;
 
   window.gtag("js", new Date());
   window.gtag("config", GOOGLE_ANALYTICS_ID);
