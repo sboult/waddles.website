@@ -54,7 +54,7 @@ export function App() {
           </span>
         </pre>
         <aside className="migration-log" aria-label="About this website">
-          <p className="migration-log__title">waddles://flight-log</p>
+          <p className="migration-log__title">waddles://surf</p>
           <dl className="migration-log__entries">
             <div>
               <dt>habitat</dt>
