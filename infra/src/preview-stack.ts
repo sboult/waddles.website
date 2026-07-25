@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
   CfnOutput,
   Duration,
@@ -13,6 +16,8 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import type { Construct } from "constructs";
+
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export interface PreviewStackProps extends StackProps {
   readonly domainName: string;
@@ -82,33 +87,12 @@ export class PreviewStack extends Stack {
     const previewRewrite = new cloudfront.Function(this, "PreviewRewrite", {
       runtime: cloudfront.FunctionRuntime.JS_2_0,
       comment: "Route PR preview hosts to isolated S3 prefixes",
-      code: cloudfront.FunctionCode.fromInline(`
-function handler(event) {
-  var request = event.request;
-  var hostHeader = request.headers.host;
-  var host = hostHeader && hostHeader.value;
-  var suffix = ".${previewDomainName}";
-
-  if (!host || host.indexOf("pr-") !== 0 || host.slice(-suffix.length) !== suffix) {
-    return { statusCode: 404, statusDescription: "Not Found" };
-  }
-
-  var pullRequestNumber = host.slice(3, -suffix.length);
-  if (!/^\\d+$/.test(pullRequestNumber)) {
-    return { statusCode: 404, statusDescription: "Not Found" };
-  }
-
-  var finalSegment = request.uri.split("/").pop();
-  if (request.uri.endsWith("/")) {
-    request.uri += "index.html";
-  } else if (finalSegment && finalSegment.indexOf(".") === -1) {
-    request.uri = "/index.html";
-  }
-
-  request.uri = "/pr-" + pullRequestNumber + request.uri;
-  return request;
-}
-`),
+      code: cloudfront.FunctionCode.fromFile({
+        filePath: path.join(
+          currentDirectory,
+          "functions/preview-rewrite.js",
+        ),
+      }),
     });
 
     const distribution = new cloudfront.Distribution(this, "Distribution", {
