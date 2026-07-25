@@ -1,6 +1,6 @@
 # World Wide Waddles — AWS Architecture v2
 
-Snapshot date: 2026-07-24  
+Snapshot date: 2026-07-25
 AWS account: `655618292901`  
 Region: `us-east-1`
 
@@ -8,10 +8,11 @@ This design reflects the deployed CloudFormation export/import architecture.
 It has no hosted-zone ID context override and no application-level Systems
 Manager Parameter Store dependency.
 
-The draw.io file contains two pages:
+The draw.io file contains three pages:
 
 1. **Runtime Overview** — browser, DNS, CDN, edge logic, and private static assets.
 2. **Deployment & Stack Contract** — separate DNS/site deployment lanes and the required CloudFormation export/import order.
+3. **PR Preview Flow** — trusted artifact publishing, isolated S3 prefixes, wildcard preview routing, and cleanup.
 
 ## Runtime flow
 
@@ -44,22 +45,39 @@ The draw.io file contains two pages:
 2. The site deployment role operates only on `WaddlesSiteStack` and passes only the site execution role.
 3. CloudFormation resolves `WaddlesHostedZoneId`, manages the ACM certificate and DNS records, deploys static assets, and invalidates CloudFront.
 
+### Preview infrastructure lane
+
+1. `WaddlesPreviewStack` imports `WaddlesHostedZoneId` and creates one shared preview bucket, wildcard ACM certificate, wildcard Route 53 aliases, CloudFront distribution, response-headers policy, and CloudFront Function.
+2. The existing site deployment and execution roles may deploy `WaddlesPreviewStack`; preview content publishing uses a separate S3-only role.
+3. The preview publisher role trusts only GitHub OIDC jobs using the `preview` environment and can manage only `pr-*` prefixes in the preview bucket.
+
 The required order for a new account or contract migration is:
 
 ```text
-WaddlesDomainStack → verify WaddlesHostedZoneId → WaddlesSiteStack
+WaddlesDomainStack → verify WaddlesHostedZoneId → WaddlesSiteStack + WaddlesPreviewStack
 ```
+
+## Pull request preview flow
+
+1. Pull-request CI builds the static site without AWS credentials and uploads `apps/www/dist` as a short-lived GitHub Actions artifact.
+2. A trusted `workflow_run` workflow from the default branch downloads the artifact after CI succeeds.
+3. GitHub OIDC assumes `waddles-github-preview-publish`, which has S3-only access to preview prefixes.
+4. The workflow syncs the artifact to `pr-<number>/` and adds or updates a pull-request comment containing `https://pr-<number>.preview.waddles.website`.
+5. The wildcard Route 53 alias sends preview traffic to the shared CloudFront distribution.
+6. The viewer-request CloudFront Function maps the hostname to the matching `pr-<number>/` prefix and applies the SPA rewrite.
+7. CloudFront reads the private preview object through Origin Access Control.
+8. Closing a pull request removes its prefix from the shared bucket.
 
 ## Service inventory
 
 | Service | Purpose |
 | --- | --- |
-| Amazon Route 53 | CDK-owned public hosted zone and apex/`www` A/AAAA aliases |
-| Amazon CloudFront | Global HTTPS delivery, caching, compression, response headers, and private S3 access |
-| CloudFront Functions | `www` redirect and SPA viewer-request rewriting |
-| Amazon S3 | Private SSE-S3-encrypted static assets with public access blocked and SSL enforced |
-| AWS Certificate Manager | DNS-validated certificate for the apex and `www` names |
-| AWS IAM / STS | GitHub OIDC provider plus separated DNS/site deployment and execution roles |
+| Amazon Route 53 | CDK-owned public hosted zone plus production and `*.preview` A/AAAA aliases |
+| Amazon CloudFront | Separate production and shared preview distributions with private S3 access |
+| CloudFront Functions | Production redirect/SPA rewrite plus preview hostname-to-prefix routing |
+| Amazon S3 | Private production assets and shared `pr-<number>/` preview prefixes |
+| AWS Certificate Manager | DNS-validated production and `*.preview.waddles.website` certificates |
+| AWS IAM / STS | GitHub OIDC provider plus DNS/site roles and an S3-only preview publisher |
 | AWS CloudFormation | Stack deployment and the `WaddlesHostedZoneId` export/import contract |
 | AWS Lambda | CDK-generated deployment and cleanup custom-resource handlers |
 
@@ -70,6 +88,7 @@ WaddlesDomainStack → verify WaddlesHostedZoneId → WaddlesSiteStack
 | `WaddlesIdentityStack` | `UPDATE_COMPLETE` | GitHub OIDC provider and scoped roles |
 | `WaddlesDomainStack` | `UPDATE_COMPLETE` | Hosted-zone owner and `WaddlesHostedZoneId` exporter |
 | `WaddlesSiteStack` | `UPDATE_COMPLETE` | Website delivery and hosted-zone ID importer |
+| `WaddlesPreviewStack` | `CREATE_COMPLETE` | Shared ephemeral preview delivery and hosted-zone ID importer |
 
 ## Key design decisions
 
@@ -78,6 +97,9 @@ WaddlesDomainStack → verify WaddlesHostedZoneId → WaddlesSiteStack
 - Site deployment cannot silently target another hosted zone.
 - DNS remains manual and separately approved; site deployment remains automatic for relevant `main` changes.
 - S3 is private and accessible only through CloudFront Origin Access Control.
+- PRs share one preview distribution and bucket; prefixes provide isolation without provisioning a distribution per PR.
+- Untrusted PR code never receives AWS credentials. Only a trusted default-branch workflow publishes the static artifact.
+- Preview cleanup is event-driven when the PR closes.
 - The application has no VPC, database, API, load balancer, container service, or always-on compute.
 - CDK bootstrap may still read its own standard SSM bootstrap-version parameter; this is separate from the removed application hosted-zone handoff.
 
@@ -87,7 +109,3 @@ The previously retained parameter
 `/waddles/waddles.website/hosted-zone-id` still exists in AWS but is no longer
 referenced or managed by these stacks. It can be deleted after confirming the
 site stack remains healthy with the CloudFormation import.
-
-`WaddlesIdentityStack` was last updated before this migration. Redeploy it once
-to remove the now-obsolete application hosted-zone parameter permissions from
-the DNS and site execution roles.
