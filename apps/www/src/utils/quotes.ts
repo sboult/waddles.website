@@ -1,7 +1,7 @@
-export function getRandomQuote(
-  quotes: readonly string[],
-  previousQuote?: string,
-): string {
+export function getRandomQuote<Quote>(
+  quotes: readonly Quote[],
+  previousQuote?: Quote,
+): Quote {
   if (quotes.length === 0) {
     throw new Error("At least one quote is required");
   }

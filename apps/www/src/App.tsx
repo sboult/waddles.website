@@ -9,27 +9,31 @@ const WADDLES_BEFORE_QUOTE = String.raw`           _
        .__(.)< `;
 const WADDLES_AFTER_QUOTE = String.raw`
         \___)`;
-const QUOTE_ROTATION_INTERVAL_MS = 3_000;
 
 export function App() {
   const [quote, setQuote] = useState(WADDLES_INTRO_QUOTE);
-  const typedQuote = useTypewriter(`(${quote})`);
+  const quoteText = `(${quote.text})`;
+  const typedQuote = useTypewriter(quoteText);
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
+    if (typedQuote !== quoteText) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
       setQuote((currentQuote) =>
         getRandomQuote(PROGRAMMER_QUOTES, currentQuote),
       );
-    }, QUOTE_ROTATION_INTERVAL_MS);
+    }, quote.holdDurationMs);
 
-    return () => window.clearInterval(intervalId);
-  }, []);
+    return () => window.clearTimeout(timeoutId);
+  }, [quote, quoteText, typedQuote]);
 
   return (
     <main>
       <section className="waddles">
         <h1>World Wide Waddles</h1>
-        <pre aria-label={`Waddles the duck says ${quote}`}>
+        <pre aria-label={`Waddles the duck says ${quote.text}`}>
           <span style={{ color: "#FAFFD3" }}>{WADDLES_BEFORE_QUOTE}</span>
           <span style={{ color: "#fff" }} aria-hidden="true">
             {typedQuote}
