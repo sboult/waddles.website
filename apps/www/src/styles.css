@@ -37,6 +37,7 @@ main {
 
 .waddles {
   width: min(100%, 38rem);
+  min-width: 0;
 }
 
 h1 {
@@ -49,7 +50,7 @@ pre {
   width: 100%;
   margin: 0;
   padding: clamp(1.25rem, 6vw, 2.5rem);
-  overflow-x: auto;
+  overflow: hidden;
   border: 1px solid #000;
   background: #000;
   font: clamp(0.7rem, 3.2vw, 1rem) / 1.4
