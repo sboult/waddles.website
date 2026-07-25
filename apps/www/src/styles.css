@@ -80,10 +80,20 @@ main {
   min-width: 0;
 }
 
-h1 {
+.site-heading {
   margin: 0 0 clamp(2rem, 6vw, 3rem);
-  font-size: clamp(1.5rem, 7vw, 2.5rem);
   text-align: center;
+}
+
+.site-heading h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 7vw, 2.5rem);
+}
+
+.site-heading p {
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  color: var(--foreground);
+  font-size: clamp(0.875rem, 3vw, 1rem);
 }
 
 .waddles-canvas {

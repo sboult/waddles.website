@@ -66,7 +66,10 @@ export function App() {
     <>
       <main>
         <section className="waddles">
-          <h1>World Wide Waddles</h1>
+          <header className="site-heading">
+            <h1>World Wide Waddles</h1>
+            <p>The little ASCII duck surfing the web</p>
+          </header>
           <WaddlesCanvas
             canvasRef={canvasRef}
             quote={quoteText}
