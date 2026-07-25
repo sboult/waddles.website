@@ -1,0 +1,23 @@
+version: 1
+applications:
+  - appRoot: apps/www
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - nvm install 24
+            - nvm use 24
+            - corepack enable
+            - corepack prepare pnpm@11.13.1 --activate
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            - pnpm --filter @waddles/www build
+      artifacts:
+        baseDirectory: apps/www/dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*

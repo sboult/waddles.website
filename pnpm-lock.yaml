@@ -43,50 +43,9 @@ importers:
         specifier: 8.1.5
         version: 8.1.5(@types/node@26.1.1)
 
-  infra:
-    dependencies:
-      aws-cdk-lib:
-        specifier: 2.262.0
-        version: 2.262.0(constructs@10.7.1)
-      constructs:
-        specifier: 10.7.1
-        version: 10.7.1
-    devDependencies:
-      '@types/aws-cloudfront-function':
-        specifier: 1.0.8
-        version: 1.0.8
-      '@types/node':
-        specifier: 26.1.1
-        version: 26.1.1
-      '@waddles/config-typescript':
-        specifier: workspace:*
-        version: link:../packages/config-typescript
-      '@waddles/www':
-        specifier: workspace:*
-        version: link:../apps/www
-      aws-cdk:
-        specifier: 2.1132.0
-        version: 2.1132.0
-      typescript:
-        specifier: 7.0.2
-        version: 7.0.2
-
   packages/config-typescript: {}
 
 packages:
-
-  '@aws-cdk/asset-awscli-v1@2.2.282':
-    resolution: {integrity: sha512-7hKMi5tTxDcKGIMIOq14PnY0GBcugW33Uh/2YHDZiEwSxLeFOCYBwhR+BFXONb/EJeVI3RETFgailNZbkcKF6g==}
-
-  '@aws-cdk/asset-node-proxy-agent-v6@2.1.2':
-    resolution: {integrity: sha512-pDiuqH+qY3zM9lhhLjbKJ1tnKOHzQ2V4Wr/3qsxyKeKAkuPMI/BVGvZG1PbrikUw949cGVTfVEt4ETKKYnrj0Q==}
-
-  '@aws-cdk/cloud-assembly-schema@54.13.0':
-    resolution: {integrity: sha512-C6LS1YxugR7j6BPVjhVsWRu/VNN8eoGDOf7dHafPviz6Y5Nv/FjVIGIPoC6jJmgJcea7VOM9TPHbBEwapCUySg==}
-    engines: {node: '>= 18.0.0'}
-    bundledDependencies:
-      - jsonschema
-      - semver
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -237,9 +196,6 @@ packages:
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
 
-  '@types/aws-cloudfront-function@1.0.8':
-    resolution: {integrity: sha512-ZuGia9Pi4zhGYorzo0UXbEAirZEEWsp6hm/KHlrTkbpcrKqjYCwQ0PUY1z5Ml5TL4ZeukJzFIkShiz8Om6JEww==}
-
   '@types/node@26.1.1':
     resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
 
@@ -383,33 +339,6 @@ packages:
         optional: true
       babel-plugin-react-compiler:
         optional: true
-
-  aws-cdk-lib@2.262.0:
-    resolution: {integrity: sha512-6zRVoWRd8kQs9ZZ9xhERSm36W8uWS2vW3/g9Zx0xlhvRRiUwTc80bzfJkohKGdT/5AOW+wy6fSDvohavG94pcA==}
-    engines: {node: '>= 20.0.0'}
-    peerDependencies:
-      constructs: ^10.5.0
-    bundledDependencies:
-      - '@aws/cloudformation-validate'
-      - '@balena/dockerignore'
-      - '@aws-cdk/cloud-assembly-api'
-      - case
-      - fs-extra
-      - ignore
-      - jsonschema
-      - minimatch
-      - punycode
-      - semver
-      - yaml
-      - mime-types
-
-  aws-cdk@2.1132.0:
-    resolution: {integrity: sha512-kcIzBZQO+2v+F97iaeI29fdOUQEx44wr0qDb9HXNqdU82V+1ZKI1KuFlHwH2nq7+6iNc1bu60se4hFf+2d7vXg==}
-    engines: {node: '>= 18.0.0'}
-    hasBin: true
-
-  constructs@10.7.1:
-    resolution: {integrity: sha512-ulK25Sg2Nv1jW+A9VeV7fu9GFN9KdVTNWdXMoapNRwqkQzSdToro/Tttk3Ak5BGI80NRA/d2nSzKnoZ27LizLw==}
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -607,12 +536,6 @@ packages:
 
 snapshots:
 
-  '@aws-cdk/asset-awscli-v1@2.2.282': {}
-
-  '@aws-cdk/asset-node-proxy-agent-v6@2.1.2': {}
-
-  '@aws-cdk/cloud-assembly-schema@54.13.0': {}
-
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -712,8 +635,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@types/aws-cloudfront-function@1.0.8': {}
-
   '@types/node@26.1.1':
     dependencies:
       undici-types: 8.3.0
@@ -790,17 +711,6 @@ snapshots:
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.1.5(@types/node@26.1.1)
-
-  aws-cdk-lib@2.262.0(constructs@10.7.1):
-    dependencies:
-      '@aws-cdk/asset-awscli-v1': 2.2.282
-      '@aws-cdk/asset-node-proxy-agent-v6': 2.1.2
-      '@aws-cdk/cloud-assembly-schema': 54.13.0
-      constructs: 10.7.1
-
-  aws-cdk@2.1132.0: {}
-
-  constructs@10.7.1: {}
 
   csstype@3.2.3: {}
 
