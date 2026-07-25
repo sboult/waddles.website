@@ -11,14 +11,6 @@
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
-    },
-    "synth": {
-      "dependsOn": ["^build", "build"],
-      "outputs": ["cdk.out/**"]
-    },
-    "deploy": {
-      "dependsOn": ["^build", "build"],
-      "cache": false
     }
   }
 }
