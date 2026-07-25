@@ -148,18 +148,22 @@ h1 {
   color: #f5f5f5;
 }
 
-.migration-log a {
+a:not([class]) {
   color: #f5f5f5;
-  text-decoration-color: var(--primary);
+  text-decoration-line: underline;
+  text-decoration-color: var(--foreground);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25rem;
+  transition:
+    color 150ms ease,
+    text-decoration-color 150ms ease;
 }
 
-.migration-log a:hover {
-  color: #faffd3;
+a:not([class]):hover {
+  color: var(--primary);
 }
 
-.migration-log a:focus-visible {
+a:not([class]):focus-visible {
   border-radius: 0.125rem;
   outline: 2px solid var(--primary);
   outline-offset: 0.25rem;
