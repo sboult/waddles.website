@@ -32,7 +32,7 @@ export function App() {
   return (
     <main>
       <section className="waddles">
-        <h1>World Wide Waddles</h1>
+        <h1>Test</h1>
         <pre aria-label={`Waddles the duck says ${quote.text}`}>
           <span style={{ color: "#FAFFD3" }}>{WADDLES_BEFORE_QUOTE}</span>
           <span style={{ color: "#fff" }} aria-hidden="true">
