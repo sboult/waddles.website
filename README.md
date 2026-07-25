@@ -3,8 +3,8 @@
 ![Waddles surfing a bright blue wave](docs/waddles-readme.png)
 
 A tiny open source home for Waddles, built with React and hosted with AWS
-Amplify. His signature ASCII greetings are powered by
-[DuckSay](https://github.com/sboult/ducksay), a Rust CLI that makes Waddles say
+Amplify. His signature ASCII greetings are insired by
+[Ducksay](https://github.com/sboult/ducksay), a Rust CLI that makes Waddles say
 whatever is on his mind.
 
 ## Developing

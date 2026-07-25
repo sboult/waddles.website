@@ -1,11 +1,7 @@
 const EXPORT_WIDTH = 1_200;
 const EXPORT_HEIGHT = 630;
-const EXPORT_LABEL = "waddles.website";
-const EXPORT_LABEL_COLOR = "#868686";
-const EXPORT_LABEL_FONT_SIZE = 44;
-const EXPORT_SCENE_AREA_TOP = 48;
 const EXPORT_SCENE_MAX_WIDTH = 1_104;
-const EXPORT_SCENE_MAX_HEIGHT = 490;
+const EXPORT_SCENE_MAX_HEIGHT = 534;
 
 function createSceneBlob(canvas: HTMLCanvasElement) {
   const styles = window.getComputedStyle(canvas);
@@ -30,8 +26,7 @@ function createSceneBlob(canvas: HTMLCanvasElement) {
   const sceneWidth = canvas.width * sceneScale;
   const sceneHeight = canvas.height * sceneScale;
   const sceneLeft = (EXPORT_WIDTH - sceneWidth) / 2;
-  const sceneTop =
-    EXPORT_SCENE_AREA_TOP + (EXPORT_SCENE_MAX_HEIGHT - sceneHeight) / 2;
+  const sceneTop = (EXPORT_HEIGHT - sceneHeight) / 2;
 
   context.save();
   context.shadowColor = "rgb(0 0 0 / 45%)";
@@ -54,16 +49,6 @@ function createSceneBlob(canvas: HTMLCanvasElement) {
     sceneHeight,
   );
   context.restore();
-
-  context.fillStyle = EXPORT_LABEL_COLOR;
-  context.font = `${EXPORT_LABEL_FONT_SIZE}px ${styles.fontFamily}`;
-  context.textAlign = "right";
-  context.textBaseline = "middle";
-  context.fillText(
-    EXPORT_LABEL,
-    sceneLeft + sceneWidth,
-    (sceneTop + sceneHeight + EXPORT_HEIGHT) / 2,
-  );
 
   return new Promise<Blob>((resolve, reject) => {
     sceneCanvas.toBlob((blob) => {
