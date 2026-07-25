@@ -57,6 +57,66 @@ pre {
     "Amazon Ember Mono", monospace;
 }
 
+.waddles-scene {
+  display: grid;
+  grid-template-columns: 8ch minmax(0, 1fr);
+  grid-template-rows: repeat(3, 1.4em);
+  width: calc(100% + 2ch);
+  margin-left: -1ch;
+}
+
+.waddles-duck {
+  grid-column: 1;
+  transform: translateX(3ch);
+}
+
+.waddles-duck {
+  color: #faffd3;
+}
+
+.waddles-duck--top {
+  grid-row: 1;
+}
+
+.waddles-duck--face {
+  grid-row: 2;
+  white-space: nowrap;
+}
+
+.waddles-duck--body {
+  grid-row: 3;
+}
+
+.waddles-quote-area {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.waddles-quote-leader {
+  min-width: 0;
+  margin-left: 10ch;
+  overflow: hidden;
+  color: #677680;
+  white-space: nowrap;
+}
+
+.waddles-quote {
+  display: inline-grid;
+  grid-column: 2;
+  color: #fff;
+}
+
+.waddles-quote__size,
+.waddles-quote__typed {
+  grid-area: 1 / 1;
+}
+
+.waddles-quote__size {
+  visibility: hidden;
+}
+
 .water {
   position: relative;
   display: block;

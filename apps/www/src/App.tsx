@@ -5,10 +5,9 @@ import { useTypewriter } from "./hooks/useTypewriter";
 import { getRandomQuote } from "./utils/quotes";
 import { WAVES } from "./utils/waves";
 
-const WADDLES_BEFORE_QUOTE = String.raw`           _
-       .__(.)< `;
-const WADDLES_AFTER_QUOTE = String.raw`
-        \___)`;
+const WADDLES_TOP = String.raw`    _`;
+const WADDLES_FACE = String.raw`.__(.)<`;
+const WADDLES_BODY = String.raw` \___)`;
 
 export function App() {
   const [quote, setQuote] = useState(WADDLES_INTRO_QUOTE);
@@ -34,12 +33,26 @@ export function App() {
       <section className="waddles">
         <h1>World Wide Waddles</h1>
         <pre aria-label={`Waddles the duck says ${quote.text}`}>
-          <span style={{ color: "#FAFFD3" }}>{WADDLES_BEFORE_QUOTE}</span>
-          <span style={{ color: "#fff" }} aria-hidden="true">
-            {typedQuote}
+          <span className="waddles-scene" aria-hidden="true">
+            <span className="waddles-duck waddles-duck--top">
+              {WADDLES_TOP}
+            </span>
+            <span className="waddles-duck waddles-duck--face">
+              {WADDLES_FACE}
+            </span>
+            <span className="waddles-quote-area">
+              <span className="waddles-quote-leader">
+                ................................................................
+              </span>
+              <span className="waddles-quote">
+                <span className="waddles-quote__size">{quoteText}</span>
+                <span className="waddles-quote__typed">{typedQuote}</span>
+              </span>
+            </span>
+            <span className="waddles-duck waddles-duck--body">
+              {WADDLES_BODY}
+            </span>
           </span>
-          <span style={{ color: "#FAFFD3" }}>{WADDLES_AFTER_QUOTE}</span>
-          {"\n"}
           <span className="water" aria-hidden="true">
             <span
               className="water-track"
