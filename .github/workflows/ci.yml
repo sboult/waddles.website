@@ -36,6 +36,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Save preview artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: preview-${{ github.event.pull_request.number }}
+          path: apps/www/dist
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Synthesize CDK
         run: pnpm synth
-

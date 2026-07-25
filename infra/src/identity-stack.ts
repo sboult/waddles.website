@@ -53,17 +53,19 @@ export class IdentityStack extends Stack {
       executionRole: siteExecutionRole,
       provider,
       roleName: ROLE_NAMES.siteDeployment,
-      stackName: STACK_NAMES.site,
+      stackNames: [STACK_NAMES.site, STACK_NAMES.preview],
       config: props.config,
       publishesAssets: true,
     });
+
+    this.createPreviewPublishRole(props.config, provider);
 
     this.createGitHubDeploymentRole({
       environment: props.config.dnsEnvironment,
       executionRole: dnsExecutionRole,
       provider,
       roleName: ROLE_NAMES.dnsDeployment,
-      stackName: STACK_NAMES.domain,
+      stackNames: [STACK_NAMES.domain],
       config: props.config,
       publishesAssets: false,
     });
@@ -90,7 +92,7 @@ export class IdentityStack extends Stack {
     readonly provider: iam.IOpenIdConnectProvider;
     readonly publishesAssets: boolean;
     readonly roleName: string;
-    readonly stackName: string;
+    readonly stackNames: readonly string[];
   }): iam.Role {
     const subject = githubEnvironmentSubject(
       options.config,
@@ -108,15 +110,17 @@ export class IdentityStack extends Stack {
     const role = new iam.Role(this, `${options.roleName}Role`, {
       roleName: options.roleName,
       assumedBy: principal,
-      description: `GitHub Actions deployment role for ${options.stackName}`,
+      description: `GitHub Actions deployment role for ${options.stackNames.join(", ")}`,
       maxSessionDuration: Duration.hours(1),
     });
 
-    const stackArn = Stack.of(this).formatArn({
-      service: "cloudformation",
-      resource: "stack",
-      resourceName: `${options.stackName}/*`,
-    });
+    const stackArns = options.stackNames.map((stackName) =>
+      Stack.of(this).formatArn({
+        service: "cloudformation",
+        resource: "stack",
+        resourceName: `${stackName}/*`,
+      }),
+    );
     role.addToPolicy(
       new iam.PolicyStatement({
         sid: "DeployOnlyTheExpectedStack",
@@ -133,7 +137,7 @@ export class IdentityStack extends Stack {
           "cloudformation:GetTemplate",
           "cloudformation:UpdateStack",
         ],
-        resources: [stackArn],
+        resources: stackArns,
       }),
     );
     role.addToPolicy(
@@ -192,6 +196,60 @@ export class IdentityStack extends Stack {
     return role;
   }
 
+  private createPreviewPublishRole(
+    config: WaddlesConfig,
+    provider: iam.IOpenIdConnectProvider,
+  ): iam.Role {
+    const principal = new iam.WebIdentityPrincipal(
+      provider.openIdConnectProviderArn,
+      {
+        StringEquals: {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": githubEnvironmentSubject(
+            config,
+            config.previewEnvironment,
+          ),
+        },
+      },
+    );
+    const role = new iam.Role(this, `${ROLE_NAMES.previewPublish}Role`, {
+      roleName: ROLE_NAMES.previewPublish,
+      assumedBy: principal,
+      description: "Publish and remove isolated pull request preview assets",
+      maxSessionDuration: Duration.hours(1),
+    });
+    const bucketArn = `arn:${this.partition}:s3:::waddles-website-previews-${this.account}`;
+
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        sid: "ListPreviewPrefixes",
+        actions: ["s3:ListBucket"],
+        resources: [bucketArn],
+        conditions: {
+          StringLike: {
+            "s3:prefix": ["pr-*", "pr-*/*"],
+          },
+        },
+      }),
+    );
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        sid: "ReadPreviewBucketLocation",
+        actions: ["s3:GetBucketLocation"],
+        resources: [bucketArn],
+      }),
+    );
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        sid: "ManagePreviewObjects",
+        actions: ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"],
+        resources: [`${bucketArn}/pr-*`],
+      }),
+    );
+
+    return role;
+  }
+
   private domainRecordConditions(domainName: string): {
     readonly [key: string]: { readonly [key: string]: string | string[] };
   } {
@@ -243,31 +301,43 @@ export class IdentityStack extends Stack {
 
   private siteExecutionPolicy(config: WaddlesConfig): iam.PolicyDocument {
     const bucketArn = `arn:${this.partition}:s3:::waddles-website-assets-${this.account}`;
+    const previewBucketArn = `arn:${this.partition}:s3:::waddles-website-previews-${this.account}`;
     const bootstrapBucketArn = `arn:${this.partition}:s3:::cdk-hnb659fds-assets-${this.account}-${this.region}`;
-    const functionArn = Stack.of(this).formatArn({
-      arnFormat: ArnFormat.COLON_RESOURCE_NAME,
-      service: "lambda",
-      resource: "function",
-      resourceName: `${STACK_NAMES.site}-*`,
-    });
+    const functionArns = [STACK_NAMES.site, STACK_NAMES.preview].map(
+      (stackName) =>
+        Stack.of(this).formatArn({
+          arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+          service: "lambda",
+          resource: "function",
+          resourceName: `${stackName}-*`,
+        }),
+    );
     const deploymentLayerArn = Stack.of(this).formatArn({
       arnFormat: ArnFormat.COLON_RESOURCE_NAME,
       service: "lambda",
       resource: "layer",
       resourceName: "DeployWebsiteAwsCliLayer*",
     });
-    const generatedRoleArn = Stack.of(this).formatArn({
-      service: "iam",
-      region: "",
-      resource: "role",
-      resourceName: `${STACK_NAMES.site}-*`,
-    });
+    const generatedRoleArns = [STACK_NAMES.site, STACK_NAMES.preview].map(
+      (stackName) =>
+        Stack.of(this).formatArn({
+          service: "iam",
+          region: "",
+          resource: "role",
+          resourceName: `${stackName}-*`,
+        }),
+    );
 
     return new iam.PolicyDocument({
       statements: [
         new iam.PolicyStatement({
           actions: ["s3:*"],
-          resources: [bucketArn, `${bucketArn}/*`],
+          resources: [
+            bucketArn,
+            `${bucketArn}/*`,
+            previewBucketArn,
+            `${previewBucketArn}/*`,
+          ],
         }),
         new iam.PolicyStatement({
           actions: ["s3:GetObject"],
@@ -350,11 +420,11 @@ export class IdentityStack extends Stack {
             "iam:TagRole",
             "iam:UntagRole",
           ],
-          resources: [generatedRoleArn],
+          resources: generatedRoleArns,
         }),
         new iam.PolicyStatement({
           actions: ["lambda:*"],
-          resources: [functionArn],
+          resources: functionArns,
         }),
         new iam.PolicyStatement({
           actions: ["lambda:PublishLayerVersion"],
@@ -373,14 +443,14 @@ export class IdentityStack extends Stack {
             "logs:TagResource",
             "logs:UntagResource",
           ],
-          resources: [
+          resources: [STACK_NAMES.site, STACK_NAMES.preview].map((stackName) =>
             Stack.of(this).formatArn({
               arnFormat: ArnFormat.COLON_RESOURCE_NAME,
               service: "logs",
               resource: "log-group",
-              resourceName: `/aws/lambda/${STACK_NAMES.site}-*`,
+              resourceName: `/aws/lambda/${stackName}-*`,
             }),
-          ],
+          ),
         }),
       ],
     });
