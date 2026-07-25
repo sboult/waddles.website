@@ -1,3 +1,9 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
 @font-face {
   font-family: "Amazon Ember Mono";
   src: url("/font/AmazonEmberMono_Rg.ttf") format("truetype");
@@ -7,10 +13,42 @@
 }
 
 :root {
-  color: #f5f5f5;
-  background: #000;
+  color: var(--foreground);
+  background: var(--background);
   font-family: "Amazon Ember Mono", monospace;
   font-synthesis: none;
+  --background: #090909;
+  --foreground: #f5f5f5;
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #2563eb;
+  --primary-foreground: #fff;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: var(--primary);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 * {
@@ -23,6 +61,8 @@ html {
 }
 
 body {
+  color: var(--foreground);
+  background: var(--background);
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
@@ -46,84 +86,24 @@ h1 {
   text-align: center;
 }
 
-pre {
-  width: 100%;
-  margin: 0;
-  padding: clamp(1.25rem, 6vw, 2.5rem);
-  overflow: hidden;
-  border: 1px solid #000;
-  background: #000;
-  font: clamp(0.7rem, 3.2vw, 1rem) / 1.4
-    "Amazon Ember Mono", monospace;
-}
+.waddles-canvas {
+  --canvas-font-size: clamp(0.7rem, 3.2vw, 1rem);
+  --canvas-padding: clamp(1.25rem, 6vw, 2.5rem);
+  --terminal-titlebar-height: 2.5rem;
 
-.waddles-scene {
-  display: grid;
-  grid-template-columns: 8ch minmax(0, 1fr);
-  grid-template-rows: repeat(3, 1.4em);
-  width: calc(100% + 2ch);
-  margin-left: -1ch;
-}
-
-.waddles-duck {
-  grid-column: 1;
-  transform: translateX(3ch);
-}
-
-.waddles-duck {
-  color: #faffd3;
-}
-
-.waddles-duck--top {
-  grid-row: 1;
-}
-
-.waddles-duck--face {
-  grid-row: 2;
-  white-space: nowrap;
-}
-
-.waddles-duck--body {
-  grid-row: 3;
-}
-
-.waddles-quote-area {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-row: 2;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-}
-
-.waddles-quote-leader {
-  min-width: 0;
-  margin-left: 10ch;
-  overflow: hidden;
-  color: #677680;
-  white-space: nowrap;
-}
-
-.waddles-quote {
-  display: inline-grid;
-  grid-column: 2;
-  color: #fff;
-}
-
-.waddles-quote__size,
-.waddles-quote__typed {
-  grid-area: 1 / 1;
-}
-
-.waddles-quote__size {
-  visibility: hidden;
-}
-
-.water {
-  position: relative;
   display: block;
   width: 100%;
-  height: 1.4em;
-  overflow: hidden;
-  white-space: nowrap;
+  height: calc(
+    var(--terminal-titlebar-height) + 7em + var(--canvas-padding) +
+      var(--canvas-padding)
+  );
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--background);
+  box-shadow:
+    0 1.5rem 4rem rgb(0 0 0 / 30%),
+    0 0 0 1px rgb(255 255 255 / 2%);
+  font: var(--canvas-font-size) / 1.4 "Amazon Ember Mono", monospace;
 }
 
 .migration-log {
@@ -131,24 +111,6 @@ pre {
   color: #a8b3ba;
   font-size: 0.75rem;
   line-height: 1.6;
-}
-
-.migration-log__title {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  margin: 0 0 1.5rem;
-  color: #38bdf8;
-  text-align: center;
-}
-
-.migration-log__title::before,
-.migration-log__title::after {
-  flex: 1;
-  height: 1px;
-  background: #293138;
-  content: "";
 }
 
 .migration-log__entries {
@@ -188,7 +150,7 @@ pre {
 
 .migration-log a {
   color: #f5f5f5;
-  text-decoration-color: #38bdf8;
+  text-decoration-color: var(--primary);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25rem;
 }
@@ -199,34 +161,15 @@ pre {
 
 .migration-log a:focus-visible {
   border-radius: 0.125rem;
-  outline: 2px solid #38bdf8;
+  outline: 2px solid var(--primary);
   outline-offset: 0.25rem;
 }
 
-.water-track {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  width: max-content;
-  color: #38bdf8;
-  animation: wave-scroll var(--wave-duration) linear infinite;
-  will-change: transform;
-}
-
-.water-segment {
-  display: block;
-  flex: none;
-  width: max-content;
-}
-
-@keyframes wave-scroll {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
 @media (max-width: 30rem) {
+  .waddles-canvas {
+    --terminal-titlebar-height: 2.25rem;
+  }
+
   .migration-log__entries {
     gap: 1.5rem;
     grid-template-columns: 1fr;
@@ -239,8 +182,91 @@ pre {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .water-track {
-    animation: none;
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: "Amazon Ember Mono", monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
