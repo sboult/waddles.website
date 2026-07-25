@@ -1,0 +1,104 @@
+name: Deploy PR preview
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+concurrency:
+  group: waddles-preview-pr-${{ github.event.workflow_run.pull_requests[0].number }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  check:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0].number != null
+    runs-on: ubuntu-latest
+    outputs:
+      is-open: ${{ steps.pull-request.outputs.result }}
+
+    steps:
+      - name: Check out trusted workflow scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Check that the pull request is still open
+        id: pull-request
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          result-encoding: string
+          script: |
+            const { pathToFileURL } = await import("node:url");
+            const { default: isPreviewPullRequestOpen } = await import(
+              pathToFileURL(
+                `${process.env.GITHUB_WORKSPACE}/.github/scripts/is-preview-pr-open.js`,
+              ).href,
+            );
+            return await isPreviewPullRequestOpen({ github, context });
+
+  deploy:
+    needs: check
+    if: needs.check.outputs.is-open == 'true'
+    environment:
+      name: preview
+      url: https://pr-${{ github.event.workflow_run.pull_requests[0].number }}.preview.waddles.website
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out trusted workflow scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Download built site
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: preview-${{ github.event.workflow_run.pull_requests[0].number }}
+          path: preview-site
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/waddles-github-preview-publish
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+
+      - name: Publish preview
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        run: >-
+          aws s3 sync preview-site
+          "s3://waddles-website-previews-${AWS_ACCOUNT_ID}/pr-${PR_NUMBER}"
+          --delete
+          --cache-control "public,max-age=0,must-revalidate"
+
+      - name: Add preview link to pull request
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        with:
+          script: |
+            const { pathToFileURL } = await import("node:url");
+            const { default: commentPreview } = await import(
+              pathToFileURL(
+                `${process.env.GITHUB_WORKSPACE}/.github/scripts/comment-preview.js`,
+              ).href,
+            );
+            const pullRequestNumber = Number(process.env.PR_NUMBER);
+            await commentPreview({ github, context, pullRequestNumber });

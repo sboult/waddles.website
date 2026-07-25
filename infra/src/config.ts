@@ -3,12 +3,14 @@ import type { App, Environment } from "aws-cdk-lib";
 export const STACK_NAMES = {
   domain: "WaddlesDomainStack",
   identity: "WaddlesIdentityStack",
+  preview: "WaddlesPreviewStack",
   site: "WaddlesSiteStack",
 } as const;
 
 export const ROLE_NAMES = {
   dnsDeployment: "waddles-github-dns-deployment",
   dnsExecution: "waddles-cloudformation-dns-execution",
+  previewPublish: "waddles-github-preview-publish",
   siteDeployment: "waddles-github-site-deployment",
   siteExecution: "waddles-cloudformation-site-execution",
 } as const;
@@ -26,6 +28,7 @@ export interface WaddlesConfig {
   readonly githubOwnerId: string;
   readonly githubRepository: string;
   readonly githubRepositoryId: string;
+  readonly previewEnvironment: string;
   readonly siteEnvironment: string;
 }
 
@@ -57,6 +60,7 @@ export function loadConfig(app: App): WaddlesConfig {
     githubOwnerId: requiredContext(app, "githubOwnerId"),
     githubRepository: requiredContext(app, "githubRepository"),
     githubRepositoryId: requiredContext(app, "githubRepositoryId"),
+    previewEnvironment: requiredContext(app, "githubPreviewEnvironment"),
     siteEnvironment: requiredContext(app, "githubSiteEnvironment"),
   };
 }

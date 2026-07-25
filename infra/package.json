@@ -11,6 +11,8 @@
     "setup": "pnpm run bootstrap && pnpm run identity:deploy",
     "site:diff": "cdk diff WaddlesSiteStack",
     "site:deploy": "cdk deploy WaddlesSiteStack",
+    "preview:diff": "cdk diff WaddlesPreviewStack",
+    "preview:deploy": "cdk deploy WaddlesPreviewStack",
     "domain:deploy": "cdk deploy WaddlesDomainStack",
     "identity:deploy": "cdk deploy WaddlesIdentityStack",
     "deploy": "pnpm site:deploy"
