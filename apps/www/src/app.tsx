@@ -1,4 +1,4 @@
-import { ClipboardIcon, ExternalLinkIcon } from "lucide-react";
+import { ClipboardIcon, ExternalLinkIcon, TerminalIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -94,6 +94,25 @@ export function App() {
               <ExternalLinkIcon data-icon="inline-end" />
             </a>
           </div>
+          <aside className="ducksay-promo" aria-labelledby="ducksay-heading">
+            <TerminalIcon className="ducksay-promo__icon" aria-hidden="true" />
+            <div className="ducksay-promo__copy">
+              <h2 id="ducksay-heading">Take Waddles to your terminal</h2>
+              <p>
+                Make your own Waddles quotes with <code>ducksay</code>, a tiny
+                Rust CLI.
+              </p>
+            </div>
+            <a
+              className="ducksay-promo__link"
+              href="https://github.com/sboult/ducksay"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Get ducksay
+              <ExternalLinkIcon aria-hidden="true" />
+            </a>
+          </aside>
           <aside className="migration-log" aria-label="About this website">
             <dl className="migration-log__entries">
               <div>
