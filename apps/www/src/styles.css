@@ -118,6 +118,24 @@ main {
     monospace;
 }
 
+.quote-contribution {
+  margin: 0.75rem 0 0;
+  color: #a8b3ba;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.quote-contribution a:not([class]) {
+  color: inherit;
+  text-decoration-color: #677680;
+}
+
+.quote-contribution a:not([class]):hover {
+  color: var(--foreground);
+  text-decoration-color: var(--primary);
+}
+
 .ducksay-promo {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

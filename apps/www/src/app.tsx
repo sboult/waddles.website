@@ -75,6 +75,16 @@ export function App() {
             quote={quoteText}
             typedQuote={typedQuote}
           />
+          <p className="quote-contribution">
+            <a
+              href="https://github.com/sboult/waddles.website/blob/main/apps/www/src/config/quotes.ts#L26"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Add your favorite quote by contributing to the repo
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button type="button" onClick={copyScene}>
               <ClipboardIcon data-icon="inline-start" />
