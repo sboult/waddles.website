@@ -223,4 +223,7 @@ export const PROGRAMMER_QUOTES = [
   defineQuote("clouds need debugging"),
   defineQuote("uptime is teamwork"),
   defineQuote("keep calm and code"),
+  defineQuote("If you're out of luck, ask the duck."),
+  defineQuote("$ Waddles time is coming"),
+  defineQuote("Try the duck for good luck."),
 ] as const satisfies readonly Quote[];
